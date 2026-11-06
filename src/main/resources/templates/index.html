@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmaura - Sua Farmácia de Confiança & Bem-Estar</title>
+
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome Icons & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+
+<!-- Top Bar -->
+<div class="top-bar">
+    <div class="container top-bar-content">
+        <div class="top-info">
+            <span><i class="fa-solid fa-phone"></i> 0800 777 4000</span>
+            <span><i class="fa-solid fa-truck"></i> Entrega Rápida em até 2h</span>
+        </div>
+        <div>
+            <span><i class="fa-solid fa-shield-halved"></i> Autorizado ANVISA & CRF</span>
+        </div>
+    </div>
+</div>
+
+<!-- Header -->
+<header class="header">
+    <div class="container header-main">
+        <a href="#" class="logo">
+            <i class="fa-solid fa-staff-snake"></i>
+            <span>Farmaura</span>
+        </a>
+
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Busque medicamentos, vitaminas, cosméticos..."
+                   onkeyup="filterProducts()">
+        </div>
+
+        <div class="header-actions">
+            <button class="action-btn" onclick="toggleDarkMode()" title="Alternar Modo Escuro">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+            </button>
+            <button class="action-btn" onclick="openCart()" title="Carrinho de Compras">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-badge" id="cartCount">0</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="nav-menu">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#sobre" class="nav-link">Quem Somos</a></li>
+                <li><a href="#produtos" class="nav-link">Produtos</a></li>
+                <li><a href="#servicos" class="nav-link">Serviços</a></li>
+                <li><a href="#promocoes" class="nav-link">Promoções</a></li>
+                <li><a href="#blog" class="nav-link">Dicas de Saúde</a></li>
+                <li><a href="#faq" class="nav-link">FAQ</a></li>
+                <li><a href="#contato" class="nav-link">Contato & Cadastro</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<!-- 1. Hero Section -->
+<section id="home" class="hero">
+    <div class="container hero-grid">
+        <div class="hero-text">
+            <h1>Cuidando da sua saúde em cada detalhe</h1>
+            <p>Receba seus medicamentos e produtos de cuidados pessoais no conforto da sua casa com agilidade, segurança
+                e suporte farmacêutico online.</p>
+            <div class="hero-buttons">
+                <a href="#produtos" class="btn btn-accent"><i class="fa-solid fa-bag-shopping"></i> Ver Ofertas</a>
+                <a href="#servicos" class="btn btn-outline" style="border-color: white; color: white;"><i
+                        class="fa-solid fa-user-doctor"></i> Agendar Serviço</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80"
+                 alt="Farmácia e Saúde">
+        </div>
+    </div>
+</section>
+
+<!-- Quick Categories -->
+<section class="section">
+    <div class="container">
+        <div class="categories-grid">
+            <div class="category-card" onclick="filterCategory('Analgésico')">
+                <i class="fa-solid fa-pills"></i>
+                <h4>Analgésico</h4>
+            </div>
+            <div class="category-card" onclick="filterCategory('Antibiótico')">
+                <i class="fa-solid fa-capsules"></i>
+                <h4>Antibiótico</h4>
+            </div>
+            <div class="category-card" onclick="filterCategory('Vitaminas')">
+                <i class="fa-solid fa-apple-whole"></i>
+                <h4>Vitaminas</h4>
+            </div>
+            <div class="category-card" onclick="filterCategory('Higiene')">
+                <i class="fa-solid fa-pump-soap"></i>
+                <h4>Higiene</h4>
+            </div>
+            <div class="category-card" onclick="filterCategory('Perfumaria')">
+                <i class="fa-solid fa-spray-can-sparkles"></i>
+                <h4>Perfumaria</h4>
+            </div>
+            <div class="category-card" onclick="filterCategory('Infantil')">
+                <i class="fa-solid fa-baby"></i>
+                <h4>Infantil</h4>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Bar -->
+<div class="features-bar">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                <div class="feature-info">
+                    <h4>Entrega Expressa</h4>
+                    <p>Receba em até 2 horas na sua região</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-prescription-bottle-medical"></i></div>
+                <div class="feature-info">
+                    <h4>Envio de Receita</h4>
+                    <p>Validação digital segura para produtos controlados</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="feature-info">
+                    <h4>Atendimento 24h</h4>
+                    <p>Farmacêuticos sempre à disposição</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Quem Somos -->
+<section id="sobre" class="section">
+    <div class="container">
+        <div class="section-title">
+            <span>Nossa História</span>
+            <h2>Tradição e Inovação em Saúde</h2>
+        </div>
+        <div class="hero-grid">
+            <div>
+                <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80"
+                     style="border-radius: var(--radius-lg);" alt="Equipe de Farmacêuticos">
+            </div>
+            <div>
+                <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">Compromisso com o seu bem-estar</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">Com mais de 15 anos de atuação, a Farmaura
+                    nasceu com o propósito de humanizar o atendimento farmacêutico, integrando tecnologia e cuidado
+                    técnico para garantir que você e sua família recebam o melhor acompanhamento.</p>
+                <ul style="margin-bottom: 1.5rem;">
+                    <li style="margin-bottom: 0.5rem;"><i class="fa-solid fa-check-circle"
+                                                          style="color: var(--primary-light);"></i> Equipe 100%
+                        qualificada com registro ativo no CRF.
+                    </li>
+                    <li style="margin-bottom: 0.5rem;"><i class="fa-solid fa-check-circle"
+                                                          style="color: var(--primary-light);"></i> Rigoroso controle de
+                        temperatura no transporte de medicamentos.
+                    </li>
+                    <li><i class="fa-solid fa-check-circle" style="color: var(--primary-light);"></i> Programa de
+                        descontos especiais para uso contínuo.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. Vitrine de Produtos -->
+<section id="produtos" class="section" style="background-color: var(--bg-subtle);">
+    <div class="container">
+        <div class="section-title">
+            <span>Nosso Catálogo</span>
+            <h2>Produtos em Destaque</h2>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-btn active" onclick="filterCategory('Todos')">Todos</button>
+            <button class="filter-btn" onclick="filterCategory('Analgésico')">Analgésicos</button>
+            <button class="filter-btn" onclick="filterCategory('Antibiótico')">Antibióticos</button>
+            <button class="filter-btn" onclick="filterCategory('Vitaminas')">Vitaminas</button>
+            <button class="filter-btn" onclick="filterCategory('Higiene')">Higiene</button>
+            <button class="filter-btn" onclick="filterCategory('Perfumaria')">Perfumaria</button>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid" id="productsGrid">
+            <!-- Injetado Dinamicamente via JS -->
+        </div>
+    </div>
+</section>
+
+<!-- 4. Serviços Farmacêuticos -->
+<section id="servicos" class="section">
+    <div class="container">
+        <div class="section-title">
+            <span>Atendimento Especializado</span>
+            <h2>Serviços Farmacêuticos</h2>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-syringe"></i></div>
+                <h3>Aplicação de Injetáveis</h3>
+                <p>Aplicação realizada por profissionais habilitados em sala privativa e higienizada.</p>
+                <button class="btn btn-outline" onclick="openBooking('Aplicação de Injetáveis')">Agendar Horário
+                </button>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-droplet"></i></div>
+                <h3>Teste de Glicemia</h3>
+                <p>Acompanhamento rápido dos níveis de glicose no sangue com orientação de resultados.</p>
+                <button class="btn btn-outline" onclick="openBooking('Teste de Glicemia')">Agendar Horário</button>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                <h3>Aferição de Pressão</h3>
+                <p>Monitoramento preventivo e registro do histórico de pressão arterial.</p>
+                <button class="btn btn-outline" onclick="openBooking('Aferição de Pressão')">Agendar Horário</button>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-shield-virus"></i></div>
+                <h3>Aplicação de Vacinas</h3>
+                <p>Imunização para todas as idades conforme calendário oficial de saúde.</p>
+                <button class="btn btn-outline" onclick="openBooking('Aplicação de Vacinas')">Agendar Horário</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. Promoções Especial -->
+<section id="promocoes" class="section"
+         style="background: linear-gradient(135deg, var(--accent) 0%, #c0721f 100%); color: white;">
+    <div class="container hero-grid">
+        <div>
+            <span style="text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Oferta do Dia</span>
+            <h2 style="font-size: 2.5rem; margin: 0.5rem 0 1rem 0;">Combo Imunidade Completa</h2>
+            <p style="margin-bottom: 1.5rem;">Vitamina C 1g + Zinco + Vitamina D3 com 40% de desconto garantido por
+                tempo limitado.</p>
+            <button class="btn btn-primary" onclick="addToCart('PROD-003')">Aproveitar Oferta por R$ 39,90</button>
+        </div>
+        <div style="text-align: center;">
+            <img src="https://images.unsplash.com/photo-1550572017-edd951baa74c?auto=format&fit=crop&w=600&q=80"
+                 style="border-radius: var(--radius-lg); max-height: 300px; display: inline-block;"
+                 alt="Combo Imunidade">
+        </div>
+    </div>
+</section>
+
+<!-- 6. Blog & Dicas -->
+<section id="blog" class="section">
+    <div class="container">
+        <div class="section-title">
+            <span>Informação & Saúde</span>
+            <h2>Dicas de Saúde & Bem-Estar</h2>
+        </div>
+
+        <div class="blog-grid">
+            <div class="blog-card">
+                <img src="https://images.unsplash.com/photo-1505576399279-565b52d4ac71?auto=format&fit=crop&w=600&q=80"
+                     class="blog-img" alt="Blog Post">
+                <div class="blog-body">
+                    <div class="blog-date">02 de Novembro, 2026</div>
+                    <h3 class="blog-title">Como fortalecer a imunidade nas mudanças de estação</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Confira dicas práticas de nutrição e hábitos
+                        saudáveis para evitar resfriados.</p>
+                </div>
+            </div>
+
+            <div class="blog-card">
+                <img src="https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=600&q=80"
+                     class="blog-img" alt="Blog Post">
+                <div class="blog-body">
+                    <div class="blog-date">28 de Outubro, 2026</div>
+                    <h3 class="blog-title">Uso consciente de antibióticos e riscos da automedicação</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Entenda a importância de seguir os horários
+                        e prescrição médica corretamente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. FAQ -->
+<section id="faq" class="section" style="background-color: var(--bg-subtle);">
+    <div class="container">
+        <div class="section-title">
+            <span>Dúvidas Frequentes</span>
+            <h2>Perguntas Frequentes</h2>
+        </div>
+
+        <div class="faq-container">
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>Como funciona o envio de receitas para medicamentos controlados?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Você pode anexar a foto ou PDF da receita no ato da compra. Para medicamentos com retenção de
+                    receita (tarja vermelha/preta), o entregador fará a recolha do documento original no momento da
+                    entrega.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>Qual o prazo e valor do frete?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Entregas expressas em até 2 horas para pedidos num raio de 10km. Frete Grátis em compras acima de R$
+                    99,00.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>Quais as formas de pagamento aceitas?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Aceitamos Cartão de Crédito, Débito, Pix (com 5% de desconto extra) e dinheiro no momento da
+                    entrega.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 8. Contato e Cadastro de Cliente (Mapeado com a classe Cliente/Endereco) -->
+<section id="contato" class="section">
+    <div class="container">
+        <div class="section-title">
+            <span>Fale Conosco</span>
+            <h2>Cadastro de Cliente & Contato</h2>
+        </div>
+
+        <div class="contact-grid">
+            <div>
+                <!-- Formulário alinhado com a entidade Cliente e Endereco (Spring Boot) -->
+                <form id="clienteForm" onsubmit="handleContact(event)">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Dados do Cliente</h4>
+                    <div class="form-group">
+                        <label for="idCliente">CPF / ID Cliente</label>
+                        <input type="text" id="idCliente" name="idCliente" class="form-control" required
+                               placeholder="000.000.000-00">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="tipoCliente">Tipo de Cliente</label>
+                            <select id="tipoCliente" name="tipoCliente" class="form-control">
+                                <option value="Fisica">Pessoa Física</option>
+                                <option value="Juridica">Pessoa Jurídica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="canalPreferencial">Canal Preferencial</label>
+                            <select id="canalPreferencial" name="canalPreferencial" class="form-control">
+                                <option value="E-commerce">E-commerce</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Balcao">Balcão</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h4 style="margin: 1.5rem 0 1rem 0; color: var(--primary);">Endereço de Entrega</h4>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="rua">Rua / Logradouro</label>
+                            <input type="text" id="rua" name="endereco.rua" class="form-control" required
+                                   placeholder="Av. Paulista">
+                        </div>
+                        <div class="form-group">
+                            <label for="numero">Número</label>
+                            <input type="number" id="numero" name="endereco.numero" class="form-control" required
+                                   placeholder="1000">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" name="endereco.bairro" class="form-control" required
+                                   placeholder="Bela Vista">
+                        </div>
+                        <div class="form-group">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" name="endereco.cep" class="form-control" required
+                                   placeholder="01310-100">
+                        </div>
+                        <div class="form-group">
+                            <label for="pais">País</label>
+                            <input type="text" id="pais" name="endereco.pais" class="form-control" value="Brasil">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Salvar
+                        Cadastro
+                    </button>
+                </form>
+            </div>
+
+            <div>
+                <div style="background-color: var(--bg-subtle); padding: 2rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                    <h4><i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> Unidade Matriz</h4>
+                    <p style="color: var(--text-muted);">Av. Paulista, 1000 - Bela Vista, São Paulo - SP</p>
+                    <br>
+                    <h4><i class="fa-solid fa-clock" style="color: var(--primary);"></i> Horário de Funcionamento</h4>
+                    <p style="color: var(--text-muted);">Segunda a Sábado: 07:00 às 23:00<br>Domingos e Feriados: 08:00
+                        às 20:00</p>
+                </div>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.106696296001!2d-46.65390548502223!3d-23.56287998468206!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2d97143!2sAv.%20Paulista%2C%20São%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1620000000000!5m2!1spt-BR!2sbr"
+                        width="100%" height="220" style="border:0; border-radius: var(--radius-md);" allowfullscreen=""
+                        loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="logo" style="color: white; margin-bottom: 1rem;">
+                    <i class="fa-solid fa-staff-snake"></i>
+                    <span>Farmaura</span>
+                </div>
+                <p style="font-size: 0.9rem;">Sua farmácia online com entrega rápida e atendimento especializado.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Links Rápidos</h4>
+                <ul class="footer-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#produtos">Produtos</a></li>
+                    <li><a href="#servicos">Serviços</a></li>
+                    <li><a href="#promocoes">Promoções</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Regulatório & Responsável</h4>
+                <p style="font-size: 0.85rem;">Farmaura Distribuidora de Medicamentos Ltda<br>CNPJ:
+                    00.000.000/0001-00<br>AFE: 1.23456.7 | CRF-SP: 99999<br>Farmacêutico Resp.: Dr. Carlos Silva -
+                    CRF/SP 12345</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Farmaura Farmácia. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Cart Drawer Side Panel (Mapeado com a classe Pedido / ItemPedido / Entrega) -->
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+        <h3>Meu Carrinho</h3>
+        <button class="action-btn" onclick="closeCart()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cart-body" id="cartBody">
+        <!-- Items Injetados via JS -->
+    </div>
+    <div class="cart-footer">
+        <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-bottom: 1rem;">
+            <span>Total:</span>
+            <span id="cartTotal">R$ 0,00</span>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" onclick="checkout()">Finalizar Pedido</button>
+    </div>
+</div>
+
+<!-- Floating WhatsApp -->
+<a href="https://wa.me/5511999999999" target="_blank" class="whatsapp-btn" title="Atendimento WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+</a>
+
+<!-- INTERACTIVE JAVASCRIPT LOGIC (Mapeado com os atributos Java) -->
+<script>
+    /* ==========================================================================
+       DATABASE MOCK DATA (100% ALINHADO COM AS ENTIDADES MODELO JAVA)
+       Atributos: idProduto, sku, nomeProduto, categoriaTerapeutica, linha,
+                  formaFarmaceutica, concentracao, controlado, tarja, precoLista,
+                  vidaUtilMeses, status, quantidade
+       ========================================================================== */
+    const products = [
+        {
+            idProduto: "PROD-001",
+            sku: "SKU-DIP-500",
+            nomeProduto: "Dipirona Monoidratada",
+            categoriaTerapeutica: "Analgésico",
+            linha: "Genéricos",
+            formaFarmaceutica: "Comprimido",
+            concentracao: "500mg",
+            controlado: false,
+            tarja: "Sem Tarja",
+            precoLista: 8.50,
+            vidaUtilMeses: 24,
+            status: "Ativo",
+            quantidade: 100,
+            img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80",
+            rating: 5
+        },
+        {
+            idProduto: "PROD-002",
+            sku: "SKU-AMO-500",
+            nomeProduto: "Amoxicilina Tri-hidratada",
+            categoriaTerapeutica: "Antibiótico",
+            linha: "Etilicos",
+            formaFarmaceutica: "Cápsula",
+            concentracao: "500mg",
+            controlado: true,
+            tarja: "Vermelha",
+            precoLista: 28.90,
+            vidaUtilMeses: 18,
+            status: "Ativo",
+            quantidade: 45,
+            img: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=300&q=80",
+            rating: 4
+        },
+        {
+            idProduto: "PROD-003",
+            sku: "SKU-VIT-C",
+            nomeProduto: "Vitamina C + Zinco",
+            categoriaTerapeutica: "Vitaminas",
+            linha: "Suplementos",
+            formaFarmaceutica: "Efervescente",
+            concentracao: "1g",
+            controlado: false,
+            tarja: "Sem Tarja",
+            precoLista: 39.90,
+            vidaUtilMeses: 36,
+            status: "Ativo",
+            quantidade: 80,
+            img: "https://images.unsplash.com/photo-1550572017-edd951baa74c?auto=format&fit=crop&w=300&q=80",
+            rating: 5
+        },
+        {
+            idProduto: "PROD-004",
+            sku: "SKU-PROT-60",
+            nomeProduto: "Protetor Solar Facial FPS 60",
+            categoriaTerapeutica: "Perfumaria",
+            linha: "Dermocosméticos",
+            formaFarmaceutica: "Creme",
+            concentracao: "120g",
+            controlado: false,
+            tarja: "Sem Tarja",
+            precoLista: 62.00,
+            vidaUtilMeses: 24,
+            status: "Ativo",
+            quantidade: 30,
+            img: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=300&q=80",
+            rating: 5
+        },
+        {
+            idProduto: "PROD-005",
+            sku: "SKU-PAR-750",
+            nomeProduto: "Paracetamol",
+            categoriaTerapeutica: "Analgésico",
+            linha: "Genéricos",
+            formaFarmaceutica: "Comprimido",
+            concentracao: "750mg",
+            controlado: false,
+            tarja: "Sem Tarja",
+            precoLista: 6.90,
+            vidaUtilMeses: 24,
+            status: "Ativo",
+            quantidade: 150,
+            img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80",
+            rating: 4
+        },
+        {
+            idProduto: "PROD-006",
+            sku: "SKU-FRAL-M",
+            nomeProduto: "Fralda Infantil Pacote M",
+            categoriaTerapeutica: "Infantil",
+            linha: "Cuidados Diários",
+            formaFarmaceutica: "Unidade",
+            concentracao: "Tam M (40 un)",
+            controlado: false,
+            tarja: "Sem Tarja",
+            precoLista: 45.90,
+            vidaUtilMeses: 48,
+            status: "Ativo",
+            quantidade: 60,
+            img: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80",
+            rating: 5
+        }
+    ];
+
+    /* Carrinho armazena objetos baseados na entidade ItemPedido */
+    let cart = [];
+
+    /* Renderização do Catálogo */
+    function renderProducts(items) {
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = items.map(p => `
+        <div class="product-card">
+          <div class="product-thumb">
+            <img src="${p.img}" alt="${p.nomeProduto}">
+          </div>
+          <div class="product-details">
+            <span class="product-category">${p.categoriaTerapeutica} • ${p.concentracao}</span>
+            <h3 class="product-title">${p.nomeProduto}</h3>
+            ${p.controlado ? `<span class="badge badge-warning" style="margin-bottom:0.5rem; display:inline-block;">Retenção de Receita</span>` : ''}
+            <div class="product-rating">
+              ${'<i class="fa-solid fa-star"></i>'.repeat(p.rating)}
+            </div>
+            <div class="product-price-row">
+              <span class="price-current">R$ ${p.precoLista.toFixed(2).replace('.', ',')}</span>
+            </div>
+            <button class="btn btn-primary" onclick="addToCart('${p.idProduto}')">
+              <i class="fa-solid fa-cart-plus"></i> Comprar
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* Filtragem por Categoria Terapêutica */
+    function filterCategory(cat) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        if (event && event.target) event.target.classList.add('active');
+
+        if (cat === 'Todos') {
+            renderProducts(products);
+        } else {
+            renderProducts(products.filter(p => p.categoriaTerapeutica === cat));
+        }
+    }
+
+    /* Busca por Nome do Produto ou Categoria */
+    function filterProducts() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = products.filter(p =>
+            p.nomeProduto.toLowerCase().includes(query) ||
+            p.categoriaTerapeutica.toLowerCase().includes(query)
+        );
+        renderProducts(filtered);
+    }
+
+    /* Adicionar Item ao Carrinho */
+    function addToCart(idProduto) {
+        const product = products.find(p => p.idProduto === idProduto);
+        const existing = cart.find(item => item.idProduto === idProduto);
+
+        if (existing) {
+            existing.quantidade++;
+            existing.subTotal = existing.quantidade * existing.preco;
+        } else {
+            cart.push({
+                idProduto: product.idProduto,
+                nomeProduto: product.nomeProduto,
+                preco: product.precoLista,
+                quantidade: 1,
+                subTotal: product.precoLista,
+                img: product.img
+            });
+        }
+
+        updateCart();
+        openCart();
+    }
+
+    /* Atualiza os Totais do Carrinho (Corrigido para evitar erro de sintaxe) */
+    function updateCart() {
+        const totalItems = cart.reduce((acc, item) => acc + item.quantidade, 0);
+        document.getElementById('cartCount').innerText = totalItems;
+
+        const cartBody = document.getElementById('cartBody');
+        if (cart.length === 0) {
+            cartBody.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top:2rem;">Seu carrinho está vazio.</p>';
+        } else {
+            cartBody.innerHTML = cart.map(item => `
+          <div class="cart-item">
+            <img src="${item.img}" class="cart-item-img" alt="${item.nomeProduto}">
+            <div style="flex:1;">
+              <h4 style="font-size:0.9rem;">${item.nomeProduto}</h4>
+              <p style="font-weight:700; color:var(--primary);">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
+              <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+                <button onclick="changeQty('${item.idProduto}', -1)" style="padding:0.2rem 0.5rem; cursor:pointer;">-</button>
+                <span>${item.quantidade}</span>
+                <button onclick="changeQty('${item.idProduto}', 1)" style="padding:0.2rem 0.5rem; cursor:pointer;">+</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        }
+
+        /* Cálculo correto do valor total acumulado */
+        const totalValue = cart.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+        document.getElementById('cartTotal').innerText = `R$ ${totalValue.toFixed(2).replace('.', ',')}`;
+    }
+
+    function changeQty(idProduto, delta) {
+        const item = cart.find(i => i.idProduto === idProduto);
+        if (item) {
+            item.quantidade += delta;
+            item.subTotal = item.quantidade * item.preco;
+            if (item.quantidade <= 0) {
+                cart = cart.filter(i => i.idProduto !== idProduto);
+            }
+        }
+        updateCart();
+    }
+
+    function openCart() {
+        document.getElementById('cartDrawer').classList.add('open');
+        document.getElementById('overlay').classList.add('show');
+    }
+
+    function closeCart() {
+        document.getElementById('cartDrawer').classList.remove('open');
+        document.getElementById('overlay').classList.remove('show');
+    }
+
+    function checkout() {
+        if (cart.length === 0) {
+            alert("Adicione produtos ao carrinho antes de finalizar.");
+            return;
+        }
+        alert("Pedido gerado com sucesso! Integrando com o Spring Boot...");
+        cart = [];
+        updateCart();
+        closeCart();
+    }
+
+    /* Alternar Modo Escuro */
+    function toggleDarkMode() {
+        const html = document.documentElement;
+        const icon = document.getElementById('themeIcon');
+
+        if (html.getAttribute('data-theme') === 'dark') {
+            html.setAttribute('data-theme', 'light');
+            icon.className = 'fa-solid fa-moon';
+        } else {
+            html.setAttribute('data-theme', 'dark');
+            icon.className = 'fa-solid fa-sun';
+        }
+    }
+
+    /* FAQ Toggle */
+    function toggleFaq(element) {
+        element.classList.toggle('active');
+    }
+
+    function openBooking(serviceName) {
+        alert(`Iniciando agendamento para: ${serviceName}. Entraremos em contato para confirmar.`);
+    }
+
+    function handleContact(e) {
+        e.preventDefault();
+        alert("Cadastro enviado com sucesso! Dados prontos para binding no Controller Java.");
+        e.target.reset();
+    }
+
+    // Inicialização da Página
+    window.onload = () => {
+        renderProducts(products);
+    };
+</script>
+</body>
+</html>
