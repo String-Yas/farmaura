@@ -1,3 +1,4 @@
+
 package br.com.farmaura.service;
 
 import br.com.farmaura.model.Produto;
@@ -6,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 
 @Service
 public class ProdutoService {
@@ -30,5 +32,18 @@ public class ProdutoService {
 
     public void deletar(String id) {
         produtoRepository.deleteById(id);
+    }
+
+    // NOVO MÉTODO: busca as categorias cadastradas nos produtos
+    public List<String> listarCategorias() {
+        return produtoRepository.findAll()
+                .stream()
+                .map(Produto::getCategoriaTerapeutica)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(categoria -> !categoria.isEmpty())
+                .distinct()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
     }
 }

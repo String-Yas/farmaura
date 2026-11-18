@@ -1,5 +1,6 @@
 package br.com.farmaura.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,6 +16,11 @@ public class Produto {
     private double precoLista;
     private boolean controlado;
     private String tarja;
+    private String categoriaTerapeutica;
+    private String concentracao;
+
+    @Column(length = 1000)
+    private String img;
 
     public Produto() {}
 
@@ -25,6 +31,19 @@ public class Produto {
         this.precoLista = precoLista;
         this.controlado = controlado;
         this.tarja = tarja;
+    }
+
+    public Produto(String idProduto, String sku, String nomeProduto, double precoLista, boolean controlado, String tarja,
+                   String categoriaTerapeutica, String concentracao, String img) {
+        this.idProduto = idProduto;
+        this.sku = sku;
+        this.nomeProduto = nomeProduto;
+        this.precoLista = precoLista;
+        this.controlado = controlado;
+        this.tarja = tarja;
+        this.categoriaTerapeutica = categoriaTerapeutica;
+        this.concentracao = concentracao;
+        this.img = img;
     }
 
     public String getIdProduto() { return idProduto; }
@@ -44,4 +63,13 @@ public class Produto {
 
     public String getTarja() { return tarja; }
     public void setTarja(String tarja) { this.tarja = tarja; }
+
+    public String getCategoriaTerapeutica() { return categoriaTerapeutica; }
+    public void setCategoriaTerapeutica(String categoriaTerapeutica) { this.categoriaTerapeutica = categoriaTerapeutica; }
+
+    public String getConcentracao() { return concentracao; }
+    public void setConcentracao(String concentracao) { this.concentracao = concentracao; }
+
+    public String getImg() { return img; }
+    public void setImg(String img) { this.img = img; }
 }

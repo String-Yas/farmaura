@@ -1,21 +1,34 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="light" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farmaura - Sua Farmácia de Confiança & Bem-Estar</title>
 
-    <link rel="stylesheet" href="style.css">
-    <!-- Font Awesome Icons & Google Fonts -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.usuarioLogado = /*[[${usuarioLogado}]]*/ false;
+        window.nomeUsuario = /*[[${nomeUsuario}]]*/ '';
+        window.isAdmin = /*[[${isAdmin}]]*/ false;
+        window.isFarmaceutico = /*[[${isFarmaceutico}]]*/ false;
+        window.podeGerenciarProdutos = /*[[${podeGerenciarProdutos}]]*/ false;
+        window.perfilUsuario = /*[[${perfilUsuario}]]*/ '';
+        /*]]>*/
+    </script>
 </head>
+
 <body>
 
 <!-- Overlay -->
-<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="overlay" id="overlay" onclick="closeAllModals()"></div>
 
 <!-- Top Bar -->
 <div class="top-bar">
@@ -33,29 +46,71 @@
 <!-- Header -->
 <header class="header">
     <div class="container header-main">
-        <a href="#" class="logo">
+        <a href="#home" class="logo">
             <i class="fa-solid fa-staff-snake"></i>
             <span>Farmaura</span>
         </a>
 
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="Busque medicamentos, vitaminas, cosméticos..."
-                   onkeyup="filterProducts()">
+            <input type="text" id="searchInput"
+                   placeholder="Busque medicamentos, vitaminas, cosméticos..."
+                   oninput="filterProducts()">
         </div>
 
         <div class="header-actions">
-            <button class="action-btn" onclick="toggleDarkMode()" title="Alternar Modo Escuro">
+            <!-- Usuário não autenticado -->
+            <button th:if="${usuarioLogado == null or !usuarioLogado}"
+                    type="button" class="btn btn-outline"
+                    onclick="openAuthModal('login')"
+                    style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <i class="fa-solid fa-user"></i> Entrar / Cadastrar
+            </button>
+
+            <!-- Usuário autenticado -->
+            <div th:if="${usuarioLogado == true}"
+                 style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-circle-user" style="font-size: 1.1rem;"></i>
+                    <span th:text="${nomeUsuario}">Usuário</span>
+                    <span th:if="${perfilUsuario != null}"
+                          th:class="${perfilUsuario == 'ADMIN' ? 'badge-role-admin' : (perfilUsuario == 'FARMACEUTICO' ? 'badge-role-farm' : 'badge-role-client')}"
+                          th:text="${perfilUsuario}">PERFIL</span>
+                </span>
+
+                <!-- Botão Adicionar Produto (Farmacêutico e Admin) -->
+                <button th:if="${podeGerenciarProdutos}" type="button" class="btn btn-accent"
+                        onclick="abrirModalProduto()" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;" title="Cadastrar novo produto">
+                    <i class="fa-solid fa-plus"></i> Novo Produto
+                </button>
+
+                <!-- Botão Gerenciar Usuários (Exclusivo Admin) -->
+                <button th:if="${isAdmin}" type="button" class="btn btn-outline"
+                        onclick="abrirModalUsuarios()" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;" title="Gerenciar usuários cadastrados">
+                    <i class="fa-solid fa-users-gear"></i> Usuários
+                </button>
+
+                <form th:action="@{/logout}" method="post" style="margin: 0;">
+                    <button type="submit" class="action-btn" title="Sair da conta">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
+            </div>
+
+            <button type="button" class="action-btn"
+                    onclick="toggleDarkMode()" title="Alternar Modo Escuro">
                 <i class="fa-solid fa-moon" id="themeIcon"></i>
             </button>
-            <button class="action-btn" onclick="openCart()" title="Carrinho de Compras">
+
+            <button type="button" class="action-btn"
+                    onclick="openCart()" title="Carrinho de Compras">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span class="cart-badge" id="cartCount">0</span>
             </button>
         </div>
     </div>
 
-    <!-- Main Navigation Bar -->
+    <!-- Navegação -->
     <nav class="nav-menu">
         <div class="container">
             <ul class="nav-list">
@@ -66,23 +121,28 @@
                 <li><a href="#promocoes" class="nav-link">Promoções</a></li>
                 <li><a href="#blog" class="nav-link">Dicas de Saúde</a></li>
                 <li><a href="#faq" class="nav-link">FAQ</a></li>
-                <li><a href="#contato" class="nav-link">Contato & Cadastro</a></li>
             </ul>
         </div>
     </nav>
 </header>
 
-<!-- 1. Hero Section -->
+<!-- Hero -->
 <section id="home" class="hero">
     <div class="container hero-grid">
         <div class="hero-text">
             <h1>Cuidando da sua saúde em cada detalhe</h1>
-            <p>Receba seus medicamentos e produtos de cuidados pessoais no conforto da sua casa com agilidade, segurança
-                e suporte farmacêutico online.</p>
+            <p>
+                Receba seus medicamentos e produtos de cuidados pessoais no conforto
+                da sua casa com agilidade, segurança e suporte farmacêutico online.
+            </p>
             <div class="hero-buttons">
-                <a href="#produtos" class="btn btn-accent"><i class="fa-solid fa-bag-shopping"></i> Ver Ofertas</a>
-                <a href="#servicos" class="btn btn-outline" style="border-color: white; color: white;"><i
-                        class="fa-solid fa-user-doctor"></i> Agendar Serviço</a>
+                <a href="#produtos" class="btn btn-accent">
+                    <i class="fa-solid fa-bag-shopping"></i> Ver Ofertas
+                </a>
+                <a href="#servicos" class="btn btn-outline"
+                   style="border-color: white; color: white;">
+                    <i class="fa-solid fa-user-doctor"></i> Agendar Serviço
+                </a>
             </div>
         </div>
         <div class="hero-image">
@@ -92,39 +152,27 @@
     </div>
 </section>
 
-<!-- Quick Categories -->
-<section class="section">
+<!-- Categorias carregadas pelo Java a partir dos produtos cadastrados -->
+<section class="section" id="categorias">
     <div class="container">
         <div class="categories-grid">
-            <div class="category-card" onclick="filterCategory('Analgésico')">
+            <div class="category-card"
+                 th:each="categoria : ${categorias}"
+                 th:attr="data-categoria=${categoria}"
+                 onclick="filterCategory(this.dataset.categoria, event)">
                 <i class="fa-solid fa-pills"></i>
-                <h4>Analgésico</h4>
+                <h4 th:text="${categoria}">Categoria</h4>
             </div>
-            <div class="category-card" onclick="filterCategory('Antibiótico')">
-                <i class="fa-solid fa-capsules"></i>
-                <h4>Antibiótico</h4>
-            </div>
-            <div class="category-card" onclick="filterCategory('Vitaminas')">
-                <i class="fa-solid fa-apple-whole"></i>
-                <h4>Vitaminas</h4>
-            </div>
-            <div class="category-card" onclick="filterCategory('Higiene')">
-                <i class="fa-solid fa-pump-soap"></i>
-                <h4>Higiene</h4>
-            </div>
-            <div class="category-card" onclick="filterCategory('Perfumaria')">
-                <i class="fa-solid fa-spray-can-sparkles"></i>
-                <h4>Perfumaria</h4>
-            </div>
-            <div class="category-card" onclick="filterCategory('Infantil')">
-                <i class="fa-solid fa-baby"></i>
-                <h4>Infantil</h4>
-            </div>
+
+            <p th:if="${#lists.isEmpty(categorias)}"
+               style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">
+                Nenhuma categoria disponível no momento.
+            </p>
         </div>
     </div>
 </section>
 
-<!-- Features Bar -->
+<!-- Diferenciais -->
 <div class="features-bar">
     <div class="container">
         <div class="features-grid">
@@ -153,7 +201,7 @@
     </div>
 </div>
 
-<!-- 2. Quem Somos -->
+<!-- Quem Somos -->
 <section id="sobre" class="section">
     <div class="container">
         <div class="section-title">
@@ -166,21 +214,27 @@
                      style="border-radius: var(--radius-lg);" alt="Equipe de Farmacêuticos">
             </div>
             <div>
-                <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">Compromisso com o seu bem-estar</h3>
-                <p style="margin-bottom: 1rem; color: var(--text-muted);">Com mais de 15 anos de atuação, a Farmaura
-                    nasceu com o propósito de humanizar o atendimento farmacêutico, integrando tecnologia e cuidado
-                    técnico para garantir que você e sua família recebam o melhor acompanhamento.</p>
+                <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">
+                    Compromisso com o seu bem-estar
+                </h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted);">
+                    Com mais de 15 anos de atuação, a Farmaura nasceu com o propósito
+                    de humanizar o atendimento farmacêutico, integrando tecnologia
+                    e cuidado técnico para garantir que você e sua família recebam
+                    o melhor acompanhamento.
+                </p>
                 <ul style="margin-bottom: 1.5rem;">
-                    <li style="margin-bottom: 0.5rem;"><i class="fa-solid fa-check-circle"
-                                                          style="color: var(--primary-light);"></i> Equipe 100%
-                        qualificada com registro ativo no CRF.
+                    <li style="margin-bottom: 0.5rem;">
+                        <i class="fa-solid fa-check-circle" style="color: var(--primary-light);"></i>
+                        Equipe 100% qualificada com registro ativo no CRF.
                     </li>
-                    <li style="margin-bottom: 0.5rem;"><i class="fa-solid fa-check-circle"
-                                                          style="color: var(--primary-light);"></i> Rigoroso controle de
-                        temperatura no transporte de medicamentos.
+                    <li style="margin-bottom: 0.5rem;">
+                        <i class="fa-solid fa-check-circle" style="color: var(--primary-light);"></i>
+                        Rigoroso controle de temperatura no transporte de medicamentos.
                     </li>
-                    <li><i class="fa-solid fa-check-circle" style="color: var(--primary-light);"></i> Programa de
-                        descontos especiais para uso contínuo.
+                    <li>
+                        <i class="fa-solid fa-check-circle" style="color: var(--primary-light);"></i>
+                        Programa de descontos especiais para uso contínuo.
                     </li>
                 </ul>
             </div>
@@ -188,7 +242,7 @@
     </div>
 </section>
 
-<!-- 3. Vitrine de Produtos -->
+<!-- Produtos -->
 <section id="produtos" class="section" style="background-color: var(--bg-subtle);">
     <div class="container">
         <div class="section-title">
@@ -196,74 +250,93 @@
             <h2>Produtos em Destaque</h2>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="filter-tabs">
-            <button class="filter-btn active" onclick="filterCategory('Todos')">Todos</button>
-            <button class="filter-btn" onclick="filterCategory('Analgésico')">Analgésicos</button>
-            <button class="filter-btn" onclick="filterCategory('Antibiótico')">Antibióticos</button>
-            <button class="filter-btn" onclick="filterCategory('Vitaminas')">Vitaminas</button>
-            <button class="filter-btn" onclick="filterCategory('Higiene')">Higiene</button>
-            <button class="filter-btn" onclick="filterCategory('Perfumaria')">Perfumaria</button>
+        <!-- Banner de Gerenciamento para Farmacêutico e Admin -->
+        <div th:if="${podeGerenciarProdutos}" style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow-sm);">
+            <div>
+                <strong style="color: var(--primary); display: flex; align-items: center; gap: 0.4rem; font-size: 1rem;">
+                    <i class="fa-solid fa-mortar-pestle"></i> Painel de Farmácia & Catálogo Ativo
+                </strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">
+                    Você possui privilégios de acesso: pode adicionar novos itens, editar preços/especificações e excluir produtos do catálogo.
+                </p>
+            </div>
+            <button type="button" class="btn btn-accent" onclick="abrirModalProduto()">
+                <i class="fa-solid fa-plus"></i> Novo Produto
+            </button>
         </div>
 
-        <!-- Products Grid -->
+        <!-- Filtros gerados dinamicamente com as categorias enviadas pelo Java -->
+        <div class="filter-tabs">
+            <button type="button" class="filter-btn active"
+                    onclick="filterCategory('Todos', event)">Todos</button>
+
+            <button type="button" class="filter-btn"
+                    th:each="categoria : ${categorias}"
+                    th:attr="data-categoria=${categoria}"
+                    th:text="${categoria}"
+                    onclick="filterCategory(this.dataset.categoria, event)">
+                Categoria
+            </button>
+        </div>
         <div class="products-grid" id="productsGrid">
-            <!-- Injetado Dinamicamente via JS -->
+            <!-- Produtos inseridos pelo JavaScript -->
         </div>
     </div>
 </section>
 
-<!-- 4. Serviços Farmacêuticos -->
+<!-- Serviços -->
 <section id="servicos" class="section">
     <div class="container">
         <div class="section-title">
             <span>Atendimento Especializado</span>
             <h2>Serviços Farmacêuticos</h2>
         </div>
-
         <div class="services-grid">
             <div class="service-card">
                 <div class="service-icon"><i class="fa-solid fa-syringe"></i></div>
                 <h3>Aplicação de Injetáveis</h3>
                 <p>Aplicação realizada por profissionais habilitados em sala privativa e higienizada.</p>
-                <button class="btn btn-outline" onclick="openBooking('Aplicação de Injetáveis')">Agendar Horário
-                </button>
+                <button type="button" class="btn btn-outline"
+                        onclick="openBooking('Aplicação de Injetáveis')">Agendar Horário</button>
             </div>
-
             <div class="service-card">
                 <div class="service-icon"><i class="fa-solid fa-droplet"></i></div>
                 <h3>Teste de Glicemia</h3>
                 <p>Acompanhamento rápido dos níveis de glicose no sangue com orientação de resultados.</p>
-                <button class="btn btn-outline" onclick="openBooking('Teste de Glicemia')">Agendar Horário</button>
+                <button type="button" class="btn btn-outline"
+                        onclick="openBooking('Teste de Glicemia')">Agendar Horário</button>
             </div>
-
             <div class="service-card">
                 <div class="service-icon"><i class="fa-solid fa-heart-pulse"></i></div>
                 <h3>Aferição de Pressão</h3>
                 <p>Monitoramento preventivo e registro do histórico de pressão arterial.</p>
-                <button class="btn btn-outline" onclick="openBooking('Aferição de Pressão')">Agendar Horário</button>
+                <button type="button" class="btn btn-outline"
+                        onclick="openBooking('Aferição de Pressão')">Agendar Horário</button>
             </div>
-
             <div class="service-card">
                 <div class="service-icon"><i class="fa-solid fa-shield-virus"></i></div>
                 <h3>Aplicação de Vacinas</h3>
                 <p>Imunização para todas as idades conforme calendário oficial de saúde.</p>
-                <button class="btn btn-outline" onclick="openBooking('Aplicação de Vacinas')">Agendar Horário</button>
+                <button type="button" class="btn btn-outline"
+                        onclick="openBooking('Aplicação de Vacinas')">Agendar Horário</button>
             </div>
         </div>
     </div>
 </section>
 
-<!-- 5. Promoções Especial -->
+<!-- Promoções -->
 <section id="promocoes" class="section"
          style="background: linear-gradient(135deg, var(--accent) 0%, #c0721f 100%); color: white;">
     <div class="container hero-grid">
         <div>
             <span style="text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Oferta do Dia</span>
             <h2 style="font-size: 2.5rem; margin: 0.5rem 0 1rem 0;">Combo Imunidade Completa</h2>
-            <p style="margin-bottom: 1.5rem;">Vitamina C 1g + Zinco + Vitamina D3 com 40% de desconto garantido por
-                tempo limitado.</p>
-            <button class="btn btn-primary" onclick="addToCart('PROD-003')">Aproveitar Oferta por R$ 39,90</button>
+            <p style="margin-bottom: 1.5rem;">
+                Vitamina C 1g + Zinco + Vitamina D3 com 40% de desconto garantido por tempo limitado.
+            </p>
+            <button type="button" class="btn btn-primary" onclick="addToCart('PROD-003')">
+                Aproveitar Oferta por R$ 39,90
+            </button>
         </div>
         <div style="text-align: center;">
             <img src="https://images.unsplash.com/photo-1550572017-edd951baa74c?auto=format&fit=crop&w=600&q=80"
@@ -273,48 +346,47 @@
     </div>
 </section>
 
-<!-- 6. Blog & Dicas -->
+<!-- Blog -->
 <section id="blog" class="section">
     <div class="container">
         <div class="section-title">
             <span>Informação & Saúde</span>
             <h2>Dicas de Saúde & Bem-Estar</h2>
         </div>
-
         <div class="blog-grid">
             <div class="blog-card">
                 <img src="https://images.unsplash.com/photo-1505576399279-565b52d4ac71?auto=format&fit=crop&w=600&q=80"
-                     class="blog-img" alt="Blog Post">
+                     class="blog-img" alt="Dicas de imunidade">
                 <div class="blog-body">
                     <div class="blog-date">02 de Novembro, 2026</div>
                     <h3 class="blog-title">Como fortalecer a imunidade nas mudanças de estação</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Confira dicas práticas de nutrição e hábitos
-                        saudáveis para evitar resfriados.</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        Confira dicas práticas de nutrição e hábitos saudáveis para evitar resfriados.
+                    </p>
                 </div>
             </div>
-
             <div class="blog-card">
                 <img src="https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=600&q=80"
-                     class="blog-img" alt="Blog Post">
+                     class="blog-img" alt="Medicamentos">
                 <div class="blog-body">
                     <div class="blog-date">28 de Outubro, 2026</div>
                     <h3 class="blog-title">Uso consciente de antibióticos e riscos da automedicação</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Entenda a importância de seguir os horários
-                        e prescrição médica corretamente.</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">
+                        Entenda a importância de seguir os horários e prescrição médica corretamente.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- 7. FAQ -->
+<!-- FAQ -->
 <section id="faq" class="section" style="background-color: var(--bg-subtle);">
     <div class="container">
         <div class="section-title">
             <span>Dúvidas Frequentes</span>
             <h2>Perguntas Frequentes</h2>
         </div>
-
         <div class="faq-container">
             <div class="faq-item" onclick="toggleFaq(this)">
                 <div class="faq-question">
@@ -322,123 +394,30 @@
                     <i class="fa-solid fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Você pode anexar a foto ou PDF da receita no ato da compra. Para medicamentos com retenção de
-                    receita (tarja vermelha/preta), o entregador fará a recolha do documento original no momento da
-                    entrega.
+                    Você pode anexar a foto ou PDF da receita no ato da compra.
+                    Para medicamentos com retenção de receita (tarja vermelha/preta),
+                    o entregador fará a recolha do documento original no momento da entrega.
                 </div>
             </div>
-
             <div class="faq-item" onclick="toggleFaq(this)">
                 <div class="faq-question">
                     <span>Qual o prazo e valor do frete?</span>
                     <i class="fa-solid fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Entregas expressas em até 2 horas para pedidos num raio de 10km. Frete Grátis em compras acima de R$
-                    99,00.
+                    Entregas expressas em até 2 horas para pedidos num raio de 10km.
+                    Frete Grátis em compras acima de R$ 99,00.
                 </div>
             </div>
-
             <div class="faq-item" onclick="toggleFaq(this)">
                 <div class="faq-question">
                     <span>Quais as formas de pagamento aceitas?</span>
                     <i class="fa-solid fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Aceitamos Cartão de Crédito, Débito, Pix (com 5% de desconto extra) e dinheiro no momento da
-                    entrega.
+                    Aceitamos Cartão de Crédito, Débito, Pix (com 5% de desconto extra)
+                    e dinheiro no momento da entrega.
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 8. Contato e Cadastro de Cliente (Mapeado com a classe Cliente/Endereco) -->
-<section id="contato" class="section">
-    <div class="container">
-        <div class="section-title">
-            <span>Fale Conosco</span>
-            <h2>Cadastro de Cliente & Contato</h2>
-        </div>
-
-        <div class="contact-grid">
-            <div>
-                <!-- Formulário alinhado com a entidade Cliente e Endereco (Spring Boot) -->
-                <form id="clienteForm" onsubmit="handleContact(event)">
-                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Dados do Cliente</h4>
-                    <div class="form-group">
-                        <label for="idCliente">CPF / ID Cliente</label>
-                        <input type="text" id="idCliente" name="idCliente" class="form-control" required
-                               placeholder="000.000.000-00">
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label for="tipoCliente">Tipo de Cliente</label>
-                            <select id="tipoCliente" name="tipoCliente" class="form-control">
-                                <option value="Fisica">Pessoa Física</option>
-                                <option value="Juridica">Pessoa Jurídica</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="canalPreferencial">Canal Preferencial</label>
-                            <select id="canalPreferencial" name="canalPreferencial" class="form-control">
-                                <option value="E-commerce">E-commerce</option>
-                                <option value="WhatsApp">WhatsApp</option>
-                                <option value="Balcao">Balcão</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <h4 style="margin: 1.5rem 0 1rem 0; color: var(--primary);">Endereço de Entrega</h4>
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label for="rua">Rua / Logradouro</label>
-                            <input type="text" id="rua" name="endereco.rua" class="form-control" required
-                                   placeholder="Av. Paulista">
-                        </div>
-                        <div class="form-group">
-                            <label for="numero">Número</label>
-                            <input type="number" id="numero" name="endereco.numero" class="form-control" required
-                                   placeholder="1000">
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label for="bairro">Bairro</label>
-                            <input type="text" id="bairro" name="endereco.bairro" class="form-control" required
-                                   placeholder="Bela Vista">
-                        </div>
-                        <div class="form-group">
-                            <label for="cep">CEP</label>
-                            <input type="text" id="cep" name="endereco.cep" class="form-control" required
-                                   placeholder="01310-100">
-                        </div>
-                        <div class="form-group">
-                            <label for="pais">País</label>
-                            <input type="text" id="pais" name="endereco.pais" class="form-control" value="Brasil">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Salvar
-                        Cadastro
-                    </button>
-                </form>
-            </div>
-
-            <div>
-                <div style="background-color: var(--bg-subtle); padding: 2rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
-                    <h4><i class="fa-solid fa-location-dot" style="color: var(--primary);"></i> Unidade Matriz</h4>
-                    <p style="color: var(--text-muted);">Av. Paulista, 1000 - Bela Vista, São Paulo - SP</p>
-                    <br>
-                    <h4><i class="fa-solid fa-clock" style="color: var(--primary);"></i> Horário de Funcionamento</h4>
-                    <p style="color: var(--text-muted);">Segunda a Sábado: 07:00 às 23:00<br>Domingos e Feriados: 08:00
-                        às 20:00</p>
-                </div>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.106696296001!2d-46.65390548502223!3d-23.56287998468206!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2d97143!2sAv.%20Paulista%2C%20São%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1620000000000!5m2!1spt-BR!2sbr"
-                        width="100%" height="220" style="border:0; border-radius: var(--radius-md);" allowfullscreen=""
-                        loading="lazy"></iframe>
             </div>
         </div>
     </div>
@@ -450,12 +429,22 @@
         <div class="footer-grid">
             <div>
                 <div class="logo" style="color: white; margin-bottom: 1rem;">
-                    <i class="fa-solid fa-staff-snake"></i>
-                    <span>Farmaura</span>
+                    <i class="fa-solid fa-staff-snake"></i><span>Farmaura</span>
                 </div>
-                <p style="font-size: 0.9rem;">Sua farmácia online com entrega rápida e atendimento especializado.</p>
+                <p style="font-size: 0.9rem;">
+                    Sua farmácia online com entrega rápida e atendimento especializado.
+                </p>
             </div>
-
+            <div class="footer-col">
+                <h4>Unidade Matriz & Horários</h4>
+                <p style="font-size: 0.85rem; line-height: 1.7;">
+                    <i class="fa-solid fa-location-dot"></i>
+                    Av. Paulista, 1000 - Bela Vista, São Paulo - SP<br>
+                    <i class="fa-solid fa-clock"></i>
+                    Seg a Sáb: 07:00 às 23:00<br>
+                    Domingos e Feriados: 08:00 às 20:00
+                </p>
+            </div>
             <div class="footer-col">
                 <h4>Links Rápidos</h4>
                 <ul class="footer-links">
@@ -465,213 +454,499 @@
                     <li><a href="#promocoes">Promoções</a></li>
                 </ul>
             </div>
-
             <div class="footer-col">
                 <h4>Regulatório & Responsável</h4>
-                <p style="font-size: 0.85rem;">Farmaura Distribuidora de Medicamentos Ltda<br>CNPJ:
-                    00.000.000/0001-00<br>AFE: 1.23456.7 | CRF-SP: 99999<br>Farmacêutico Resp.: Dr. Carlos Silva -
-                    CRF/SP 12345</p>
+                <p style="font-size: 0.85rem;">
+                    Farmaura Distribuidora de Medicamentos Ltda<br>
+                    CNPJ: 00.000.000/0001-00<br>
+                    AFE: 1.23456.7 | CRF-SP: 99999<br>
+                    Farmacêutico Resp.: Dr. Carlos Silva - CRF/SP 12345
+                </p>
             </div>
         </div>
-
         <div class="footer-bottom">
             <p>&copy; 2026 Farmaura Farmácia. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>
 
-<!-- Cart Drawer Side Panel (Mapeado com a classe Pedido / ItemPedido / Entrega) -->
+<!-- Carrinho -->
 <div class="cart-drawer" id="cartDrawer">
     <div class="cart-header">
         <h3>Meu Carrinho</h3>
-        <button class="action-btn" onclick="closeCart()"><i class="fa-solid fa-xmark"></i></button>
+        <button type="button" class="action-btn" onclick="closeCart()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
     </div>
     <div class="cart-body" id="cartBody">
-        <!-- Items Injetados via JS -->
+        <!-- Itens inseridos pelo JavaScript -->
     </div>
     <div class="cart-footer">
         <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-bottom: 1rem;">
             <span>Total:</span>
             <span id="cartTotal">R$ 0,00</span>
         </div>
-        <button class="btn btn-primary" style="width: 100%;" onclick="checkout()">Finalizar Pedido</button>
+        <button type="button" class="btn btn-primary" style="width: 100%;" onclick="checkout()">
+            Finalizar Pedido
+        </button>
     </div>
 </div>
 
-<!-- Floating WhatsApp -->
-<a href="https://wa.me/5511999999999" target="_blank" class="whatsapp-btn" title="Atendimento WhatsApp">
+<!-- Modal de Login e Cadastro -->
+<div class="auth-modal" id="authModal">
+    <div class="auth-modal-header">
+        <div class="logo" style="font-size: 1.25rem;">
+            <i class="fa-solid fa-staff-snake"></i><span>Acesso Farmaura</span>
+        </div>
+        <button type="button" class="action-btn" onclick="closeAuthModal()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div id="authAlert" class="alert-banner"></div>
+
+    <!-- Abas -->
+    <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tabLoginBtn"
+                onclick="switchAuthTab('login')">Entrar</button>
+        <button type="button" class="auth-tab-btn" id="tabRegisterBtn"
+                onclick="switchAuthTab('register')">Criar Conta</button>
+    </div>
+
+    <!-- Login -->
+    <div class="auth-form-pane active" id="paneLogin">
+        <form th:action="@{/auth/login}" method="post">
+            <div class="form-group">
+                <label for="loginUser">Usuário (Username)</label>
+                <input type="text" id="loginUser" name="username"
+                       class="form-control" required placeholder="Digite seu usuário">
+            </div>
+            <div class="form-group">
+                <label for="loginPass">Senha</label>
+                <input type="password" id="loginPass" name="password"
+                       class="form-control" required placeholder="Digite sua senha">
+            </div>
+            <button type="submit" class="btn btn-primary"
+                    style="width: 100%; margin-top: 0.5rem;">
+                <i class="fa-solid fa-right-to-bracket"></i> Acessar Sistema
+            </button>
+        </form>
+    </div>
+
+    <!-- Cadastro público: somente CLIENTE -->
+    <div class="auth-form-pane" id="paneRegister">
+        <form th:action="@{/auth/cadastrar}" method="post">
+            <h4 style="margin-bottom: 0.75rem; color: var(--primary); font-size: 0.95rem;">
+                Credenciais
+            </h4>
+
+            <div class="form-group">
+                <label for="regUser">Usuário (Username)</label>
+                <input type="text" id="regUser" name="username"
+                       class="form-control" required placeholder="Ex: maria.silva">
+            </div>
+
+            <div class="form-group">
+                <label for="regPass">Senha</label>
+                <input type="password" id="regPass" name="senha"
+                       class="form-control" required minlength="8"
+                       placeholder="Mínimo de 8 caracteres">
+            </div>
+
+            <!-- Informativo para o formulário; o backend deve fixar CLIENTE também. -->
+            <input type="hidden" name="perfil" value="CLIENTE">
+
+            <div id="clienteExtraFields">
+                <h4 style="margin: 1rem 0 0.75rem 0; color: var(--primary); font-size: 0.95rem;">
+                    Dados do Cliente
+                </h4>
+
+                <div class="form-group">
+                    <label for="idCliente">CPF / ID Cliente</label>
+                    <input type="text" id="idCliente" name="idCliente"
+                           class="form-control" placeholder="000.000.000-00" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div class="form-group">
+                        <label for="tipoCliente">Tipo de Cliente</label>
+                        <select id="tipoCliente" name="tipoCliente" class="form-control" required>
+                            <option value="Fisica">Pessoa Física</option>
+                            <option value="Juridica">Pessoa Jurídica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="canalPreferencial">Canal Preferencial</label>
+                        <select id="canalPreferencial" name="canalPreferencial"
+                                class="form-control" required>
+                            <option value="E-commerce">E-commerce</option>
+                            <option value="WhatsApp">WhatsApp</option>
+                            <option value="Balcao">Balcão</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h4 style="margin: 1rem 0 0.75rem 0; color: var(--primary); font-size: 0.95rem;">
+                    Endereço de Entrega
+                </h4>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.75rem;">
+                    <div class="form-group">
+                        <label for="rua">Rua / Logradouro</label>
+                        <input type="text" id="rua" name="endereco.rua"
+                               class="form-control" placeholder="Av. Paulista" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="numero">Número</label>
+                        <input type="number" id="numero" name="endereco.numero"
+                               class="form-control" placeholder="1000" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+                    <div class="form-group">
+                        <label for="bairro">Bairro</label>
+                        <input type="text" id="bairro" name="endereco.bairro"
+                               class="form-control" placeholder="Bela Vista" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cep">CEP</label>
+                        <input type="text" id="cep" name="endereco.cep"
+                               class="form-control" placeholder="01310-100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pais">País</label>
+                        <input type="text" id="pais" name="endereco.pais"
+                               class="form-control" value="Brasil" required>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-accent"
+                    style="width: 100%; margin-top: 0.5rem;">
+                <i class="fa-solid fa-user-plus"></i> Cadastrar como Cliente
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL DE PRODUTO (Cadastrar / Editar - Farmacêutico e Admin)
+     ========================================================================== -->
+<div class="auth-modal" id="modalProduto" style="max-width: 650px;">
+    <div class="auth-modal-header">
+        <h3 id="modalProdutoTitulo" style="color: var(--primary); font-size: 1.25rem;">
+            <i class="fa-solid fa-box-open"></i> Cadastrar Novo Produto
+        </h3>
+        <button type="button" class="action-btn" onclick="fecharModalProduto()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div id="produtoAlert" class="alert-banner"></div>
+
+    <form id="formProduto" onsubmit="salvarProduto(event)">
+        <input type="hidden" id="prodModo" value="criar">
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+                <label for="prodId">Código / ID do Produto *</label>
+                <input type="text" id="prodId" class="form-control" required placeholder="Ex: PROD-007">
+            </div>
+            <div class="form-group">
+                <label for="prodSku">Código SKU *</label>
+                <input type="text" id="prodSku" class="form-control" required placeholder="Ex: SKU-MED-500">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="prodNome">Nome do Produto *</label>
+            <input type="text" id="prodNome" class="form-control" required placeholder="Ex: Ibuprofeno 400mg">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+                <label for="prodCategoria">Categoria Terapêutica *</label>
+                <input type="text" id="prodCategoria" class="form-control"
+                       list="categoriasDisponiveis"
+                       placeholder="Selecione ou digite uma categoria"
+                       required>
+                <datalist id="categoriasDisponiveis">
+                    <option th:each="categoria : ${categorias}"
+                            th:value="${categoria}"></option>
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label for="prodConcentracao">Apresentação / Concentração</label>
+                <input type="text" id="prodConcentracao" class="form-control" placeholder="Ex: 400mg (20 comp)">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group">
+                <label for="prodPreco">Preço (R$) *</label>
+                <input type="number" step="0.01" id="prodPreco" class="form-control" required placeholder="19.90">
+            </div>
+            <div class="form-group">
+                <label for="prodTarja">Tarja</label>
+                <select id="prodTarja" class="form-control">
+                    <option value="Sem Tarja">Sem Tarja</option>
+                    <option value="Amarela">Amarela (Genérico)</option>
+                    <option value="Vermelha">Vermelha</option>
+                    <option value="Preta">Preta</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="prodControlado">Controlado?</label>
+                <select id="prodControlado" class="form-control">
+                    <option value="false">Não</option>
+                    <option value="true">Sim (Retém Receita)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="prodImg">URL da Imagem</label>
+            <input type="url" id="prodImg" class="form-control" placeholder="https://exemplo.com/foto.jpg">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+            <button type="submit" class="btn btn-primary" style="flex: 2;">
+                <i class="fa-solid fa-floppy-disk"></i> Salvar Produto
+            </button>
+            <button type="button" class="btn btn-outline" style="flex: 1;" onclick="fecharModalProduto()">
+                Cancelar
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ==========================================================================
+     MODAL DE GESTÃO DE USUÁRIOS (Exclusivo Administrador)
+     ========================================================================== -->
+<div class="auth-modal" id="modalUsuarios" style="max-width: 860px;">
+    <div class="auth-modal-header">
+        <h3 style="color: var(--primary); font-size: 1.25rem;">
+            <i class="fa-solid fa-users-gear"></i> Painel de Gestão de Usuários
+        </h3>
+        <button type="button" class="action-btn" onclick="fecharModalUsuarios()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div id="usuarioAlert" class="alert-banner"></div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+        <span style="font-size: 0.88rem; color: var(--text-muted);">
+            Visualize todos os usuários, altere níveis de acesso (Admin, Farmacêutico, Cliente), ative/bloqueie ou exclua.
+        </span>
+        <button type="button" class="btn btn-accent" style="padding: 0.45rem 0.9rem; font-size: 0.85rem;" onclick="abrirFormNovoUsuario()">
+            <i class="fa-solid fa-user-plus"></i> Novo Usuário
+        </button>
+    </div>
+
+    <!-- Formulário inline para Criar / Editar Usuário -->
+    <div id="formUsuarioContainer" style="display: none; background: var(--bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.25rem; border: 1px solid var(--border);">
+        <h4 id="formUsuarioTitulo" style="color: var(--primary); margin-bottom: 0.75rem; font-size: 0.95rem;">
+            <i class="fa-solid fa-user-pen"></i> Criar Novo Usuário
+        </h4>
+        <form id="formUsuario" onsubmit="salvarUsuario(event)">
+            <input type="hidden" id="usrId" value="">
+            <input type="hidden" id="usrModo" value="criar">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="form-group">
+                    <label for="usrUsername">Nome de Usuário (Login) *</label>
+                    <input type="text" id="usrUsername" class="form-control" required placeholder="Ex: joao.farmacia">
+                </div>
+                <div class="form-group">
+                    <label for="usrSenha" id="usrSenhaLabel">Senha de Acesso *</label>
+                    <input type="password" id="usrSenha" class="form-control" placeholder="Mínimo de 6 caracteres">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.5rem;">
+                <div class="form-group">
+                    <label for="usrPerfil">Perfil de Permissão *</label>
+                    <select id="usrPerfil" class="form-control" required>
+                        <option value="CLIENTE">CLIENTE (Acesso comum à loja)</option>
+                        <option value="FARMACEUTICO">FARMACEUTICO (Gerencia catálogo e receitas)</option>
+                        <option value="ADMIN">ADMIN (Controle total de produtos e usuários)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="usrAtivo">Status da Conta</label>
+                    <select id="usrAtivo" class="form-control">
+                        <option value="true">Ativo (Pode acessar)</option>
+                        <option value="false">Inativo (Acesso bloqueado)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary" style="padding: 0.45rem 1.2rem; font-size: 0.85rem;">
+                    <i class="fa-solid fa-check"></i> Salvar Usuário
+                </button>
+                <button type="button" class="btn btn-outline" style="padding: 0.45rem 1rem; font-size: 0.85rem;" onclick="fecharFormUsuario()">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabela de Usuários -->
+    <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); max-height: 400px; overflow-y: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; text-align: left;">
+            <thead>
+            <tr style="background: var(--bg-subtle); border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 1;">
+                <th style="padding: 0.75rem 1rem;">ID</th>
+                <th style="padding: 0.75rem 1rem;">Usuário</th>
+                <th style="padding: 0.75rem 1rem;">Perfil</th>
+                <th style="padding: 0.75rem 1rem;">Status</th>
+                <th style="padding: 0.75rem 1rem; text-align: right;">Ações</th>
+            </tr>
+            </thead>
+            <tbody id="usuariosTableBody">
+            <!-- Inserido dinamicamente pelo JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- WhatsApp -->
+<a href="https://wa.me/5511999999999" target="_blank"
+   rel="noopener noreferrer" class="whatsapp-btn" title="Atendimento WhatsApp">
     <i class="fa-brands fa-whatsapp"></i>
 </a>
 
-<!-- INTERACTIVE JAVASCRIPT LOGIC (Mapeado com os atributos Java) -->
 <script>
-    /* ==========================================================================
-       DATABASE MOCK DATA (100% ALINHADO COM AS ENTIDADES MODELO JAVA)
-       Atributos: idProduto, sku, nomeProduto, categoriaTerapeutica, linha,
-                  formaFarmaceutica, concentracao, controlado, tarja, precoLista,
-                  vidaUtilMeses, status, quantidade
-       ========================================================================== */
-    const products = [
-        {
-            idProduto: "PROD-001",
-            sku: "SKU-DIP-500",
-            nomeProduto: "Dipirona Monoidratada",
-            categoriaTerapeutica: "Analgésico",
-            linha: "Genéricos",
-            formaFarmaceutica: "Comprimido",
-            concentracao: "500mg",
-            controlado: false,
-            tarja: "Sem Tarja",
-            precoLista: 8.50,
-            vidaUtilMeses: 24,
-            status: "Ativo",
-            quantidade: 100,
-            img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80",
-            rating: 5
-        },
-        {
-            idProduto: "PROD-002",
-            sku: "SKU-AMO-500",
-            nomeProduto: "Amoxicilina Tri-hidratada",
-            categoriaTerapeutica: "Antibiótico",
-            linha: "Etilicos",
-            formaFarmaceutica: "Cápsula",
-            concentracao: "500mg",
-            controlado: true,
-            tarja: "Vermelha",
-            precoLista: 28.90,
-            vidaUtilMeses: 18,
-            status: "Ativo",
-            quantidade: 45,
-            img: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&w=300&q=80",
-            rating: 4
-        },
-        {
-            idProduto: "PROD-003",
-            sku: "SKU-VIT-C",
-            nomeProduto: "Vitamina C + Zinco",
-            categoriaTerapeutica: "Vitaminas",
-            linha: "Suplementos",
-            formaFarmaceutica: "Efervescente",
-            concentracao: "1g",
-            controlado: false,
-            tarja: "Sem Tarja",
-            precoLista: 39.90,
-            vidaUtilMeses: 36,
-            status: "Ativo",
-            quantidade: 80,
-            img: "https://images.unsplash.com/photo-1550572017-edd951baa74c?auto=format&fit=crop&w=300&q=80",
-            rating: 5
-        },
-        {
-            idProduto: "PROD-004",
-            sku: "SKU-PROT-60",
-            nomeProduto: "Protetor Solar Facial FPS 60",
-            categoriaTerapeutica: "Perfumaria",
-            linha: "Dermocosméticos",
-            formaFarmaceutica: "Creme",
-            concentracao: "120g",
-            controlado: false,
-            tarja: "Sem Tarja",
-            precoLista: 62.00,
-            vidaUtilMeses: 24,
-            status: "Ativo",
-            quantidade: 30,
-            img: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=300&q=80",
-            rating: 5
-        },
-        {
-            idProduto: "PROD-005",
-            sku: "SKU-PAR-750",
-            nomeProduto: "Paracetamol",
-            categoriaTerapeutica: "Analgésico",
-            linha: "Genéricos",
-            formaFarmaceutica: "Comprimido",
-            concentracao: "750mg",
-            controlado: false,
-            tarja: "Sem Tarja",
-            precoLista: 6.90,
-            vidaUtilMeses: 24,
-            status: "Ativo",
-            quantidade: 150,
-            img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80",
-            rating: 4
-        },
-        {
-            idProduto: "PROD-006",
-            sku: "SKU-FRAL-M",
-            nomeProduto: "Fralda Infantil Pacote M",
-            categoriaTerapeutica: "Infantil",
-            linha: "Cuidados Diários",
-            formaFarmaceutica: "Unidade",
-            concentracao: "Tam M (40 un)",
-            controlado: false,
-            tarja: "Sem Tarja",
-            precoLista: 45.90,
-            vidaUtilMeses: 48,
-            status: "Ativo",
-            quantidade: 60,
-            img: "https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=300&q=80",
-            rating: 5
-        }
-    ];
-
-    /* Carrinho armazena objetos baseados na entidade ItemPedido */
+    let products = [];
     let cart = [];
+    let currentCategoryFilter = "Todos";
 
-    /* Renderização do Catálogo */
-    function renderProducts(items) {
-        const grid = document.getElementById('productsGrid');
-        grid.innerHTML = items.map(p => `
-        <div class="product-card">
-          <div class="product-thumb">
-            <img src="${p.img}" alt="${p.nomeProduto}">
-          </div>
-          <div class="product-details">
-            <span class="product-category">${p.categoriaTerapeutica} • ${p.concentracao}</span>
-            <h3 class="product-title">${p.nomeProduto}</h3>
-            ${p.controlado ? `<span class="badge badge-warning" style="margin-bottom:0.5rem; display:inline-block;">Retenção de Receita</span>` : ''}
-            <div class="product-rating">
-              ${'<i class="fa-solid fa-star"></i>'.repeat(p.rating)}
-            </div>
-            <div class="product-price-row">
-              <span class="price-current">R$ ${p.precoLista.toFixed(2).replace('.', ',')}</span>
-            </div>
-            <button class="btn btn-primary" onclick="addToCart('${p.idProduto}')">
-              <i class="fa-solid fa-cart-plus"></i> Comprar
-            </button>
-          </div>
-        </div>
-      `).join('');
+    function formatPrice(value) {
+        return Number(value).toFixed(2).replace(".", ",");
     }
 
-    /* Filtragem por Categoria Terapêutica */
-    function filterCategory(cat) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        if (event && event.target) event.target.classList.add('active');
-
-        if (cat === 'Todos') {
-            renderProducts(products);
-        } else {
-            renderProducts(products.filter(p => p.categoriaTerapeutica === cat));
+    async function carregarProdutos() {
+        const grid = document.getElementById("productsGrid");
+        try {
+            const resp = await fetch("/api/produtos");
+            if (resp.ok) {
+                products = await resp.json();
+                filterCategory(currentCategoryFilter);
+            } else {
+                grid.innerHTML = `<p style="text-align:center; width:100%; padding:2rem; color:var(--danger);">Erro ao carregar catálogo de produtos.</p>`;
+            }
+        } catch (e) {
+            console.error("Falha ao buscar produtos da API", e);
+            grid.innerHTML = `<p style="text-align:center; width:100%; padding:2rem; color:var(--danger);">Não foi possível carregar os produtos do servidor.</p>`;
         }
     }
 
-    /* Busca por Nome do Produto ou Categoria */
+    function renderProducts(items) {
+        const grid = document.getElementById("productsGrid");
+        if (!grid) return;
+
+        if (items.length === 0) {
+            grid.innerHTML = `
+                <p style="text-align:center; width:100%; padding:2rem;">
+                    Nenhum produto encontrado.
+                </p>`;
+            return;
+        }
+
+        const podeGerenciar = Boolean(window.podeGerenciarProdutos);
+
+        grid.innerHTML = items.map(p => {
+            const adminControls = podeGerenciar ? `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.75rem; border-top: 1px dashed var(--border); padding-top: 0.75rem;">
+                    <button type="button" class="btn btn-outline btn-sm"
+                            onclick="abrirModalProduto('${p.idProduto}')">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm"
+                            onclick="excluirProduto('${p.idProduto}', '${p.nomeProduto.replace(/'/g, "\\'")}')">
+                        <i class="fa-solid fa-trash"></i> Excluir
+                    </button>
+                </div>
+            ` : "";
+
+            const imgUrl = p.img && p.img.trim().length > 0
+                ? p.img
+                : "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80";
+
+            return `
+            <div class="product-card">
+                <div class="product-thumb">
+                    <img src="${imgUrl}" alt="${p.nomeProduto}">
+                </div>
+                <div class="product-details">
+                    <span class="product-category">
+                        ${p.categoriaTerapeutica || 'Medicamento'} • ${p.concentracao || p.sku}
+                    </span>
+                    <h3 class="product-title">${p.nomeProduto}</h3>
+                    ${p.controlado ? `
+                        <span class="badge badge-sale" style="margin-bottom:0.5rem; display:inline-block;">
+                            Retenção de Receita
+                        </span>` : (p.tarja && p.tarja !== 'Sem Tarja' ? `
+                        <span class="badge" style="background:#e65100; color:white; margin-bottom:0.5rem; display:inline-block;">
+                            Tarja ${p.tarja}
+                        </span>` : '')}
+                    <div class="product-rating">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <div class="product-price-row">
+                        <span class="price-current">R$ ${formatPrice(p.precoLista)}</span>
+                    </div>
+                    <button type="button" class="btn btn-primary"
+                            onclick="addToCart('${p.idProduto}')">
+                        <i class="fa-solid fa-cart-plus"></i> Comprar
+                    </button>
+                    ${adminControls}
+                </div>
+            </div>
+            `;
+        }).join("");
+    }
+
+    function filterCategory(cat, event) {
+        currentCategoryFilter = cat;
+
+        if (event) {
+            document.querySelectorAll(".filter-btn").forEach(button => {
+                button.classList.remove("active");
+            });
+            if (event.currentTarget && event.currentTarget.classList.contains("filter-btn")) {
+                event.currentTarget.classList.add("active");
+            }
+        }
+
+        const filtered = cat === "Todos"
+            ? products
+            : products.filter(p => (p.categoriaTerapeutica || "").toLowerCase() === cat.toLowerCase());
+
+        renderProducts(filtered);
+    }
+
     function filterProducts() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
+        const query = document.getElementById("searchInput").value.trim().toLowerCase();
         const filtered = products.filter(p =>
-            p.nomeProduto.toLowerCase().includes(query) ||
-            p.categoriaTerapeutica.toLowerCase().includes(query)
+            (p.nomeProduto || "").toLowerCase().includes(query) ||
+            (p.categoriaTerapeutica || "").toLowerCase().includes(query) ||
+            (p.sku || "").toLowerCase().includes(query)
         );
         renderProducts(filtered);
     }
 
-    /* Adicionar Item ao Carrinho */
     function addToCart(idProduto) {
         const product = products.find(p => p.idProduto === idProduto);
-        const existing = cart.find(item => item.idProduto === idProduto);
+        if (!product) {
+            alert("Produto não encontrado.");
+            return;
+        }
 
+        const existing = cart.find(item => item.idProduto === idProduto);
         if (existing) {
             existing.quantidade++;
             existing.subTotal = existing.quantidade * existing.preco;
@@ -682,7 +957,7 @@
                 preco: product.precoLista,
                 quantidade: 1,
                 subTotal: product.precoLista,
-                img: product.img
+                img: product.img || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=300&q=80"
             });
         }
 
@@ -690,56 +965,62 @@
         openCart();
     }
 
-    /* Atualiza os Totais do Carrinho (Corrigido para evitar erro de sintaxe) */
     function updateCart() {
         const totalItems = cart.reduce((acc, item) => acc + item.quantidade, 0);
-        document.getElementById('cartCount').innerText = totalItems;
+        document.getElementById("cartCount").innerText = totalItems;
 
-        const cartBody = document.getElementById('cartBody');
+        const cartBody = document.getElementById("cartBody");
         if (cart.length === 0) {
-            cartBody.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top:2rem;">Seu carrinho está vazio.</p>';
+            cartBody.innerHTML = `
+                <p style="text-align:center; color:var(--text-muted); margin-top:2rem;">
+                    Seu carrinho está vazio.
+                </p>`;
         } else {
             cartBody.innerHTML = cart.map(item => `
-          <div class="cart-item">
-            <img src="${item.img}" class="cart-item-img" alt="${item.nomeProduto}">
-            <div style="flex:1;">
-              <h4 style="font-size:0.9rem;">${item.nomeProduto}</h4>
-              <p style="font-weight:700; color:var(--primary);">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
-              <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
-                <button onclick="changeQty('${item.idProduto}', -1)" style="padding:0.2rem 0.5rem; cursor:pointer;">-</button>
-                <span>${item.quantidade}</span>
-                <button onclick="changeQty('${item.idProduto}', 1)" style="padding:0.2rem 0.5rem; cursor:pointer;">+</button>
-              </div>
-            </div>
-          </div>
-        `).join('');
+                <div class="cart-item">
+                    <img src="${item.img}" class="cart-item-img" alt="${item.nomeProduto}">
+                    <div style="flex:1;">
+                        <h4 style="font-size:0.9rem;">${item.nomeProduto}</h4>
+                        <p style="font-weight:700; color:var(--primary);">
+                            R$ ${formatPrice(item.preco)}
+                        </p>
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;">
+                            <button type="button" onclick="changeQty('${item.idProduto}', -1)">-</button>
+                            <span>${item.quantidade}</span>
+                            <button type="button" onclick="changeQty('${item.idProduto}', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
         }
 
-        /* Cálculo correto do valor total acumulado */
-        const totalValue = cart.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
-        document.getElementById('cartTotal').innerText = `R$ ${totalValue.toFixed(2).replace('.', ',')}`;
+        const totalValue = cart.reduce(
+            (acc, item) => acc + (item.preco * item.quantidade), 0
+        );
+        document.getElementById("cartTotal").innerText = `R$ ${formatPrice(totalValue)}`;
     }
 
     function changeQty(idProduto, delta) {
         const item = cart.find(i => i.idProduto === idProduto);
-        if (item) {
-            item.quantidade += delta;
+        if (!item) return;
+
+        item.quantidade += delta;
+        if (item.quantidade <= 0) {
+            cart = cart.filter(i => i.idProduto !== idProduto);
+        } else {
             item.subTotal = item.quantidade * item.preco;
-            if (item.quantidade <= 0) {
-                cart = cart.filter(i => i.idProduto !== idProduto);
-            }
         }
         updateCart();
     }
 
     function openCart() {
-        document.getElementById('cartDrawer').classList.add('open');
-        document.getElementById('overlay').classList.add('show');
+        document.getElementById("cartDrawer").classList.add("open");
+        document.getElementById("overlay").classList.add("show");
     }
 
     function closeCart() {
-        document.getElementById('cartDrawer').classList.remove('open');
-        document.getElementById('overlay').classList.remove('show');
+        document.getElementById("cartDrawer").classList.remove("open");
+        document.getElementById("overlay").classList.remove("show");
     }
 
     function checkout() {
@@ -747,45 +1028,390 @@
             alert("Adicione produtos ao carrinho antes de finalizar.");
             return;
         }
-        alert("Pedido gerado com sucesso! Integrando com o Spring Boot...");
-        cart = [];
-        updateCart();
-        closeCart();
+        alert("Carrinho preparado! Total: " + document.getElementById("cartTotal").innerText);
     }
 
-    /* Alternar Modo Escuro */
     function toggleDarkMode() {
         const html = document.documentElement;
-        const icon = document.getElementById('themeIcon');
+        const icon = document.getElementById("themeIcon");
 
-        if (html.getAttribute('data-theme') === 'dark') {
-            html.setAttribute('data-theme', 'light');
-            icon.className = 'fa-solid fa-moon';
+        if (html.getAttribute("data-theme") === "dark") {
+            html.setAttribute("data-theme", "light");
+            icon.className = "fa-solid fa-moon";
         } else {
-            html.setAttribute('data-theme', 'dark');
-            icon.className = 'fa-solid fa-sun';
+            html.setAttribute("data-theme", "dark");
+            icon.className = "fa-solid fa-sun";
         }
     }
 
-    /* FAQ Toggle */
     function toggleFaq(element) {
-        element.classList.toggle('active');
+        element.classList.toggle("active");
     }
 
     function openBooking(serviceName) {
         alert(`Iniciando agendamento para: ${serviceName}. Entraremos em contato para confirmar.`);
     }
 
-    function handleContact(e) {
-        e.preventDefault();
-        alert("Cadastro enviado com sucesso! Dados prontos para binding no Controller Java.");
-        e.target.reset();
+    function openAuthModal(tab = "login") {
+        switchAuthTab(tab);
+        document.getElementById("authModal").classList.add("open");
+        document.getElementById("overlay").classList.add("show");
     }
 
-    // Inicialização da Página
-    window.onload = () => {
-        renderProducts(products);
-    };
+    function closeAuthModal() {
+        document.getElementById("authModal").classList.remove("open");
+        document.getElementById("overlay").classList.remove("show");
+    }
+
+    function closeAllModals() {
+        closeCart();
+        closeAuthModal();
+        fecharModalProduto();
+        fecharModalUsuarios();
+    }
+
+    function switchAuthTab(tab) {
+        const login = tab === "login";
+        document.getElementById("tabLoginBtn").classList.toggle("active", login);
+        document.getElementById("tabRegisterBtn").classList.toggle("active", !login);
+        document.getElementById("paneLogin").classList.toggle("active", login);
+        document.getElementById("paneRegister").classList.toggle("active", !login);
+    }
+
+    /* ==========================================================================
+       GESTÃO DE PRODUTOS (Farmacêutico e Administrador)
+       ========================================================================== */
+    function abrirModalProduto(idProduto = null) {
+        const alertBox = document.getElementById("produtoAlert");
+        alertBox.style.display = "none";
+
+        if (idProduto) {
+            const p = products.find(item => item.idProduto === idProduto);
+            if (!p) return;
+
+            document.getElementById("modalProdutoTitulo").innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Editar Produto`;
+            document.getElementById("prodModo").value = "editar";
+            document.getElementById("prodId").value = p.idProduto;
+            document.getElementById("prodId").readOnly = true;
+            document.getElementById("prodSku").value = p.sku || "";
+            document.getElementById("prodNome").value = p.nomeProduto || "";
+            document.getElementById("prodCategoria").value = p.categoriaTerapeutica || "";
+            document.getElementById("prodConcentracao").value = p.concentracao || "";
+            document.getElementById("prodPreco").value = p.precoLista || "";
+            document.getElementById("prodTarja").value = p.tarja || "Sem Tarja";
+            document.getElementById("prodControlado").value = p.controlado ? "true" : "false";
+            document.getElementById("prodImg").value = p.img || "";
+        } else {
+            document.getElementById("modalProdutoTitulo").innerHTML = `<i class="fa-solid fa-box-open"></i> Cadastrar Novo Produto`;
+            document.getElementById("prodModo").value = "criar";
+            document.getElementById("formProduto").reset();
+            document.getElementById("prodId").readOnly = false;
+        }
+
+        document.getElementById("modalProduto").classList.add("open");
+        document.getElementById("overlay").classList.add("show");
+    }
+
+    function fecharModalProduto() {
+        const modal = document.getElementById("modalProduto");
+        if (modal) modal.classList.remove("open");
+        document.getElementById("overlay").classList.remove("show");
+    }
+
+    async function salvarProduto(event) {
+        event.preventDefault();
+        const modo = document.getElementById("prodModo").value;
+        const id = document.getElementById("prodId").value.trim();
+        const alertBox = document.getElementById("produtoAlert");
+
+        const payload = {
+            idProduto: id,
+            sku: document.getElementById("prodSku").value.trim(),
+            nomeProduto: document.getElementById("prodNome").value.trim(),
+            categoriaTerapeutica: document.getElementById("prodCategoria").value.trim(),
+            concentracao: document.getElementById("prodConcentracao").value.trim(),
+            precoLista: parseFloat(document.getElementById("prodPreco").value),
+            tarja: document.getElementById("prodTarja").value,
+            controlado: document.getElementById("prodControlado").value === "true",
+            img: document.getElementById("prodImg").value.trim()
+        };
+
+        const url = modo === "criar" ? "/api/produtos" : `/api/produtos/${encodeURIComponent(id)}`;
+        const method = modo === "criar" ? "POST" : "PUT";
+
+        try {
+            const resp = await fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (resp.ok) {
+                fecharModalProduto();
+                await carregarProdutos();
+                alert(`Produto "${payload.nomeProduto}" salvo com sucesso!`);
+            } else {
+                const erroData = await resp.json().catch(() => ({}));
+                alertBox.className = "alert-banner alert-error";
+                alertBox.innerText = erroData.erro || "Falha ao salvar produto. Verifique suas permissões.";
+                alertBox.style.display = "block";
+            }
+        } catch (e) {
+            console.error("Erro ao salvar produto", e);
+            alertBox.className = "alert-banner alert-error";
+            alertBox.innerText = "Erro de conexão ao salvar produto.";
+            alertBox.style.display = "block";
+        }
+    }
+
+    async function excluirProduto(idProduto, nomeProduto) {
+        if (!confirm(`Deseja realmente excluir o produto "${nomeProduto}" (ID: ${idProduto})?`)) {
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/produtos/${encodeURIComponent(idProduto)}`, {
+                method: "DELETE"
+            });
+
+            if (resp.ok || resp.status === 204) {
+                await carregarProdutos();
+                alert(`Produto "${nomeProduto}" excluído com sucesso!`);
+            } else {
+                alert("Não foi possível excluir o produto. Verifique suas permissões.");
+            }
+        } catch (e) {
+            console.error("Erro ao excluir produto", e);
+            alert("Erro de conexão ao excluir produto.");
+        }
+    }
+
+    /* ==========================================================================
+       GESTÃO DE USUÁRIOS (Exclusivo Administrador)
+       ========================================================================== */
+    function abrirModalUsuarios() {
+        document.getElementById("modalUsuarios").classList.add("open");
+        document.getElementById("overlay").classList.add("show");
+        fecharFormUsuario();
+        carregarUsuarios();
+    }
+
+    function fecharModalUsuarios() {
+        const modal = document.getElementById("modalUsuarios");
+        if (modal) modal.classList.remove("open");
+        document.getElementById("overlay").classList.remove("show");
+    }
+
+    async function carregarUsuarios() {
+        const tbody = document.getElementById("usuariosTableBody");
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem;">Carregando usuários...</td></tr>`;
+
+        try {
+            const resp = await fetch("/api/usuarios");
+            if (resp.ok) {
+                const usuarios = await resp.json();
+                renderUsuarios(usuarios);
+            } else {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem; color:var(--danger);">Acesso negado ou erro ao listar usuários.</td></tr>`;
+            }
+        } catch (e) {
+            console.error("Erro ao buscar usuários", e);
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem; color:var(--danger);">Falha de rede ao consultar usuários.</td></tr>`;
+        }
+    }
+
+    function renderUsuarios(usuarios) {
+        const tbody = document.getElementById("usuariosTableBody");
+        if (usuarios.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem;">Nenhum usuário cadastrado.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = usuarios.map(u => {
+            const roleClass = u.perfil === "ADMIN" ? "badge-role-admin" : (u.perfil === "FARMACEUTICO" ? "badge-role-farm" : "badge-role-client");
+            const statusClass = u.ativo ? "badge-status-active" : "badge-status-inactive";
+            const statusText = u.ativo ? "Ativo" : "Inativo";
+            const toggleIcon = u.ativo ? "fa-user-slash" : "fa-user-check";
+            const toggleText = u.ativo ? "Desativar" : "Ativar";
+
+            return `
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 0.75rem 1rem; font-weight:600;">#${u.id}</td>
+                <td style="padding: 0.75rem 1rem;">
+                    <i class="fa-solid fa-user" style="color:var(--text-muted); margin-right:4px;"></i>
+                    <strong>${u.username}</strong>
+                </td>
+                <td style="padding: 0.75rem 1rem;">
+                    <span class="${roleClass}">${u.perfil}</span>
+                </td>
+                <td style="padding: 0.75rem 1rem;">
+                    <span class="${statusClass}">${statusText}</span>
+                </td>
+                <td style="padding: 0.75rem 1rem; text-align: right;">
+                    <div style="display: inline-flex; gap: 0.35rem;">
+                        <button type="button" class="btn btn-outline btn-sm" title="${toggleText} usuário"
+                                onclick="alternarStatusUsuario(${u.id})">
+                            <i class="fa-solid ${toggleIcon}"></i> ${toggleText}
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" title="Editar dados"
+                                onclick="abrirFormEditarUsuario(${u.id}, '${u.username}', '${u.perfil}', ${u.ativo})">
+                            <i class="fa-solid fa-pen"></i> Editar
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" title="Excluir usuário"
+                                onclick="excluirUsuario(${u.id}, '${u.username}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        }).join("");
+    }
+
+    function abrirFormNovoUsuario() {
+        document.getElementById("formUsuarioTitulo").innerHTML = `<i class="fa-solid fa-user-plus"></i> Criar Novo Usuário`;
+        document.getElementById("usrModo").value = "criar";
+        document.getElementById("usrId").value = "";
+        document.getElementById("usrUsername").value = "";
+        document.getElementById("usrSenha").value = "";
+        document.getElementById("usrSenha").required = true;
+        document.getElementById("usrSenhaLabel").innerText = "Senha de Acesso *";
+        document.getElementById("usrPerfil").value = "CLIENTE";
+        document.getElementById("usrAtivo").value = "true";
+        document.getElementById("formUsuarioContainer").style.display = "block";
+    }
+
+    function abrirFormEditarUsuario(id, username, perfil, ativo) {
+        document.getElementById("formUsuarioTitulo").innerHTML = `<i class="fa-solid fa-user-pen"></i> Editar Usuário: ${username}`;
+        document.getElementById("usrModo").value = "editar";
+        document.getElementById("usrId").value = id;
+        document.getElementById("usrUsername").value = username;
+        document.getElementById("usrSenha").value = "";
+        document.getElementById("usrSenha").required = false;
+        document.getElementById("usrSenhaLabel").innerText = "Nova Senha (deixe vazio para manter a atual)";
+        document.getElementById("usrPerfil").value = perfil;
+        document.getElementById("usrAtivo").value = ativo ? "true" : "false";
+        document.getElementById("formUsuarioContainer").style.display = "block";
+    }
+
+    function fecharFormUsuario() {
+        document.getElementById("formUsuarioContainer").style.display = "none";
+        document.getElementById("formUsuario").reset();
+    }
+
+    async function salvarUsuario(event) {
+        event.preventDefault();
+        const modo = document.getElementById("usrModo").value;
+        const id = document.getElementById("usrId").value;
+        const alertBox = document.getElementById("usuarioAlert");
+
+        const payload = {
+            username: document.getElementById("usrUsername").value.trim(),
+            senha: document.getElementById("usrSenha").value,
+            perfil: document.getElementById("usrPerfil").value,
+            ativo: document.getElementById("usrAtivo").value === "true"
+        };
+
+        const url = modo === "criar" ? "/api/usuarios" : `/api/usuarios/${id}`;
+        const method = modo === "criar" ? "POST" : "PUT";
+
+        try {
+            const resp = await fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (resp.ok) {
+                fecharFormUsuario();
+                await carregarUsuarios();
+                alertBox.className = "alert-banner alert-success";
+                alertBox.innerText = `Usuário "${payload.username}" salvo com sucesso!`;
+                alertBox.style.display = "block";
+            } else {
+                const erroData = await resp.json().catch(() => ({}));
+                alertBox.className = "alert-banner alert-error";
+                alertBox.innerText = erroData.erro || "Falha ao salvar usuário.";
+                alertBox.style.display = "block";
+            }
+        } catch (e) {
+            console.error("Erro ao salvar usuário", e);
+            alertBox.className = "alert-banner alert-error";
+            alertBox.innerText = "Erro de conexão ao salvar usuário.";
+            alertBox.style.display = "block";
+        }
+    }
+
+    async function alternarStatusUsuario(id) {
+        try {
+            const resp = await fetch(`/api/usuarios/${id}/status`, {
+                method: "PATCH"
+            });
+            if (resp.ok) {
+                await carregarUsuarios();
+            } else {
+                const erroData = await resp.json().catch(() => ({}));
+                alert(erroData.erro || "Erro ao alterar status do usuário.");
+            }
+        } catch (e) {
+            console.error("Erro ao alternar status", e);
+            alert("Erro de conexão ao alternar status do usuário.");
+        }
+    }
+
+    async function excluirUsuario(id, username) {
+        if (!confirm(`Deseja realmente excluir permanentemente o usuário "${username}" (ID: ${id})?`)) {
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/usuarios/${id}`, {
+                method: "DELETE"
+            });
+
+            if (resp.ok || resp.status === 204) {
+                await carregarUsuarios();
+                alert(`Usuário "${username}" excluído com sucesso!`);
+            } else {
+                const erroData = await resp.json().catch(() => ({}));
+                alert(erroData.erro || "Não foi possível excluir este usuário.");
+            }
+        } catch (e) {
+            console.error("Erro ao excluir usuário", e);
+            alert("Erro de rede ao excluir usuário.");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        carregarProdutos();
+        updateCart();
+
+        const params = new URLSearchParams(window.location.search);
+        const alertBox = document.getElementById("authAlert");
+
+        if (params.has("sucessoCadastro")) {
+            openAuthModal("login");
+            alertBox.className = "alert-banner alert-success";
+            alertBox.innerText = "Cadastro salvo com sucesso! Faça seu login abaixo.";
+            alertBox.style.display = "block";
+        } else if (params.has("erroCadastro")) {
+            openAuthModal("register");
+            alertBox.className = "alert-banner alert-error";
+            alertBox.innerText = "Erro: Este nome de usuário já está cadastrado.";
+            alertBox.style.display = "block";
+        } else if (params.has("loginErro")) {
+            openAuthModal("login");
+            alertBox.className = "alert-banner alert-error";
+            alertBox.innerText = "Usuário ou senha inválidos, ou conta inativa.";
+            alertBox.style.display = "block";
+        } else if (params.has("expired")) {
+            openAuthModal("login");
+            alertBox.className = "alert-banner alert-error";
+            alertBox.innerText = "Sua sessão foi encerrada por alteração cadastral.";
+            alertBox.style.display = "block";
+        }
+    });
 </script>
+
 </body>
 </html>

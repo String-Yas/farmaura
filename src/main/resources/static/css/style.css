@@ -892,3 +892,160 @@ img {
         display: none; /* Can be toggled for mobile menu */
     }
 }
+/* ==========================================================================
+   12. AUTH MODAL (LOGIN & CADASTRO COMPLETO POP-UP)
+   ========================================================================== */
+.auth-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 95%;
+    max-width: 620px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 2100;
+    padding: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.auth-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.auth-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background-color: var(--bg-subtle);
+    padding: 0.35rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+}
+
+.auth-tab-btn {
+    flex: 1;
+    padding: 0.6rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.auth-tab-btn.active {
+    background-color: var(--primary);
+    color: var(--text-white);
+}
+
+.auth-form-pane {
+    display: none;
+}
+
+.auth-form-pane.active {
+    display: block;
+}
+
+.alert-banner {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: none;
+}
+
+.alert-success {
+    background-color: rgba(46, 125, 50, 0.15);
+    color: var(--primary-light);
+    border: 1px solid var(--primary-light);
+}
+
+.alert-error {
+    background-color: rgba(229, 57, 53, 0.15);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: var(--text-white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-danger:hover {
+    background-color: #c62828;
+}
+
+.btn-sm {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+}
+
+.badge-role-admin {
+    background-color: #6a1b9a;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badge-role-farm {
+    background-color: var(--primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badge-role-client {
+    background-color: var(--text-muted);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badge-status-active {
+    background-color: rgba(46, 125, 50, 0.15);
+    color: var(--primary-light);
+    border: 1px solid var(--primary-light);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badge-status-inactive {
+    background-color: rgba(229, 57, 53, 0.15);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
