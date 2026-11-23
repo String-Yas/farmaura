@@ -617,3 +617,24 @@ Caused by: java.lang.AssertionError: 18
 	at org.h2.mvstore.FileStore.executeFileStoreOperation(FileStore.java:1894)
 	at org.h2.mvstore.MVStore.executeFilestoreOperation(MVStore.java:1044)
 	... 19 more
+2026-11-18 21:21:14.187708-03:00 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM APP.TB_CLIENTE ID_CLIENTE [*]APP.TB_CLIENTE APP.TB_CLIENTE"; SQL statement:
+SELECT * FROM APP.TB_CLIENTE ID_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE [42000-240]
+2026-11-18 21:21:21.430109-03:00 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM APP.TB_CLIENTE ID_CLIENTE [*]APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE"; SQL statement:
+SELECT * FROM APP.TB_CLIENTE ID_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE [42000-240]
+2026-11-18 21:21:24.819752-03:00 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM APP.TB_CLIENTE ID_CLIENTE [*]APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE"; SQL statement:
+SELECT * FROM APP.TB_CLIENTE ID_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE [42000-240]
+2026-11-18 21:21:26.855205-03:00 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM APP.TB_CLIENTE ID_CLIENTE [*]APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_ENTREGA"; SQL statement:
+SELECT * FROM APP.TB_CLIENTE ID_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_CLIENTE APP.TB_ENTREGA [42000-240]
+2026-11-18 21:22:00.261372-03:00 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]APP.TB_ENTREGA"; expected "ALTER, ANALYZE"; SQL statement:
+APP.TB_ENTREGA [42001-240]
+2026-11-18 21:22:04.651755-03:00 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]APP.TB_CLIENTE"; expected "ALTER, ANALYZE"; SQL statement:
+APP.TB_CLIENTE [42001-240]
+2026-11-18 21:22:09.915691-03:00 jdbc[15]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]APP.TB_CLIENTE"; expected "ALTER, ANALYZE"; SQL statement:
+APP.TB_CLIENTE [42001-240]
